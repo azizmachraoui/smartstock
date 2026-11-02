@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 font-sans text-slate-900 antialiased transition-colors duration-200 dark:bg-navy-950 dark:text-slate-100;
+  }
+
+  ::selection {
+    @apply bg-brand-500/25 text-slate-900 dark:text-white;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500/70 ring-offset-2 ring-offset-white dark:ring-offset-navy-950;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+@layer components {
+  .surface {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-card dark:border-slate-800 dark:bg-navy-900;
+  }
+
+  .surface-muted {
+    @apply rounded-2xl border border-slate-200/70 bg-slate-50/70 dark:border-slate-800 dark:bg-navy-900/50;
+  }
+
+  .input-base {
+    @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-navy-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:disabled:bg-slate-800;
+  }
+
+  .input-error {
+    @apply border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500/70;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-xs text-slate-500 dark:text-slate-400;
+  }
+
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400;
+  }
+
+  .table-shell {
+    @apply w-full min-w-[720px] border-collapse text-left text-sm;
+  }
+
+  .table-shell thead th {
+    @apply whitespace-nowrap border-b border-slate-200 bg-slate-50/80 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 first:pl-5 last:pr-5 dark:border-slate-800 dark:bg-navy-950/60 dark:text-slate-400;
+  }
+
+  .table-shell tbody td {
+    @apply border-b border-slate-100 px-4 py-3.5 align-middle text-slate-700 last:pr-5 dark:border-slate-800/70 dark:text-slate-300;
+  }
+
+  .table-shell tbody tr {
+    @apply transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40;
+  }
+
+  .table-shell tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-slate-200/80 dark:bg-slate-800;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/5;
+    animation: shimmer 1.6s infinite;
+  }
+
+  .bg-grid {
+    background-image: linear-gradient(rgb(148 163 184 / 0.09) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(148 163 184 / 0.09) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+
+  .focus-ring {
+    @apply outline-none ring-2 ring-brand-500/70 ring-offset-2 ring-offset-white dark:ring-offset-navy-950;
+  }
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: rgb(148 163 184 / 0.45);
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(148 163 184 / 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

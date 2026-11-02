@@ -1,0 +1,26 @@
+{
+  "name": "smartstock",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @smartstock/api",
+    "dev:web": "npm run dev -w @smartstock/web",
+    "build:shared": "npm run build -w @smartstock/shared",
+    "build:api": "npm run build -w @smartstock/api",
+    "build:web": "npm run build -w @smartstock/web",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "lint": "eslint .",
+    "seed": "npm run seed -w @smartstock/api",
+    "seed:reset": "npm run seed:reset -w @smartstock/api"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.0.0"
+  }
+}
