@@ -6,3 +6,22 @@ dist
 .DS_Store
 apps/api/uploads/*
 !apps/api/uploads/.gitkeep
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build files
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
