@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +8,7 @@ import {
   ArrowRight,
   BarChart3,
   Boxes,
+  CheckCircle2,
   Eye,
   EyeOff,
   Lock,
@@ -42,8 +43,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const from = (location.state as { from?: string } | null)?.from;
-  const redirectTo = from && from !== '/login' ? from : '/dashboard';
+  const from = (location.state as { from?: string; registeredEmail?: string } | null)?.from;
+  const registeredEmail = (location.state as { from?: string; registeredEmail?: string } | null)?.registeredEmail;
+  const redirectTo = from && from !== '/login' && from !== '/register' ? from : '/dashboard';
 
   const {
     register,
@@ -52,8 +54,14 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: registeredEmail || '', password: '' },
   });
+
+  useEffect(() => {
+    if (registeredEmail) {
+      setValue('email', registeredEmail, { shouldValidate: true });
+    }
+  }, [registeredEmail, setValue]);
 
   const onSubmit = handleSubmit(async (values) => {
     setError(null);
@@ -173,6 +181,16 @@ export default function Login() {
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
+            {registeredEmail && !error ? (
+              <div
+                role="status"
+                className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+              >
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                Account created successfully! Please sign in with your credentials.
+              </div>
+            ) : null}
+
             {error ? (
               <div
                 role="alert"
@@ -230,6 +248,18 @@ export default function Login() {
               Sign in
               {!isSubmitting ? <ArrowRight className="h-4 w-4" aria-hidden="true" /> : null}
             </Button>
+
+            <div className="text-center">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                Don't have an account?{' '}
+                <Link
+                  to="/register"
+                  className="font-semibold text-brand-600 underline-offset-4 hover:underline dark:text-brand-400"
+                >
+                  Create an account
+                </Link>
+              </span>
+            </div>
           </form>
 
           <div className="mt-8 rounded-2xl border border-slate-200 bg-white/70 p-4 dark:border-slate-800 dark:bg-navy-900/60">

@@ -22,7 +22,15 @@ export const validate = (schema: ZodTypeAny) => (req: any, _res: any, next: any)
 };
 export const errorHandler = (err: any, _req: any, res: any, _next: any) => {
   if (err instanceof ZodError) return res.status(400).json({ message: 'Validation failed', errors: err.flatten().fieldErrors });
-  if (err.code === 11000) { const f = Object.keys(err.keyValue)[0]; return res.status(409).json({ message: `${f === 'sku' ? 'SKU' : f} "${err.keyValue[f]}" is already in use`, errors: { [f]: [`This ${f} already exists`] } }); }
+  if (err.code === 11000) {
+    const keyValue = err.keyValue || {};
+    const f = Object.keys(keyValue)[0] || 'field';
+    const val = keyValue[f] ? ` "${keyValue[f]}"` : '';
+    return res.status(409).json({ message: `${f === 'sku' ? 'SKU' : f}${val} is already in use`, errors: { [f]: [`This ${f} already exists`] } });
+  }
+  if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400) {
+    return res.status(400).json({ message: 'Invalid JSON payload' });
+  }
   if (err.name === 'MulterError') return res.status(400).json({ message: err.code === 'LIMIT_FILE_SIZE' ? 'Image too large (max 2 MB)' : err.message });
   if (err.name === 'CastError') return res.status(400).json({ message: 'Invalid id' });
   if (err instanceof AppError) return res.status(err.status).json({ message: err.message });

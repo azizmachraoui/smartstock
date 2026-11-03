@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { PageLoading } from './components/ui/States';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
@@ -71,6 +72,14 @@ export default function App() {
         element={
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
           </PublicRoute>
         }
       />

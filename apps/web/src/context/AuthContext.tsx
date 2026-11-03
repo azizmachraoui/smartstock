@@ -16,6 +16,13 @@ interface AuthContextValue {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<User>;
+  register: (payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }) => Promise<User>;
   logout: () => Promise<void>;
   reloadUser: () => Promise<User | null>;
   hasPermission: (permission: Permission) => boolean;
@@ -104,6 +111,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const register = useCallback(
+    async (payload: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      phone?: string;
+    }): Promise<User> => {
+      const session = await authService.register(payload);
+      return session.user;
+    },
+    [],
+  );
+
   const logout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
@@ -132,12 +153,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAuthenticated: Boolean(user),
       login,
+      register,
       logout,
       reloadUser,
       hasPermission,
       hasRole,
     }),
-    [user, isLoading, login, logout, reloadUser, hasPermission, hasRole],
+    [user, isLoading, login, register, logout, reloadUser, hasPermission, hasRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -14,8 +14,35 @@ const manager: Permission[] = [...employee, 'stock:adjust', 'product:write', 'ca
 export const PERMISSIONS: Record<Role, Permission[] | '*'> = { ADMIN: '*', MANAGER: manager, EMPLOYEE: employee };
 export const hasPermission = (role: Role, p: Permission) => PERMISSIONS[role] === '*' || (PERMISSIONS[role] as Permission[]).includes(p);
 
-const password = z.string().min(8).regex(/[A-Z]/, 'Needs an uppercase letter').regex(/[0-9]/, 'Needs a digit');
-export const registerSchema = z.object({ firstName: z.string().min(1), lastName: z.string().min(1), email: z.string().email(), password, phone: z.string().optional() });
+export const passwordSchema = z
+  .string({ required_error: 'Password is required' })
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one digit');
+
+const password = passwordSchema;
+
+export const registerSchema = z.object({
+  firstName: z
+    .string({ required_error: 'First name is required' })
+    .trim()
+    .min(1, 'First name is required')
+    .max(50, 'First name is too long (max 50)'),
+  lastName: z
+    .string({ required_error: 'Last name is required' })
+    .trim()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name is too long (max 50)'),
+  email: z
+    .string({ required_error: 'Email is required' })
+    .trim()
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
+  password: passwordSchema,
+  phone: z.string().trim().optional(),
+});
+
+export type RegisterInput = z.infer<typeof registerSchema>;
 export const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
 export const forgotSchema = z.object({ email: z.string().email() });
 export const resetSchema = z.object({ token: z.string().min(10), password });

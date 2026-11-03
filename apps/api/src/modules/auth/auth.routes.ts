@@ -20,8 +20,20 @@ const r = Router();
 
 // Public registration always creates EMPLOYEE accounts; an admin promotes users.
 r.post('/register', validate(registerSchema), asyncH(async (req: any, res: any) => {
-  const { password, ...rest } = req.body;
-  const u = await User.create({ ...rest, password: await bcrypt.hash(password, 12), role: 'EMPLOYEE' });
+  const email = req.body.email.toLowerCase().trim();
+  const existing = await User.findOne({ email });
+  if (existing) {
+    throw new AppError(409, 'An account with this email address already exists');
+  }
+  const { password, firstName, lastName, phone } = req.body;
+  const u = await User.create({
+    firstName,
+    lastName,
+    email,
+    phone,
+    password: await bcrypt.hash(password, 12),
+    role: 'EMPLOYEE',
+  });
   const full = await User.findById(u.id).select('+tokenVersion');
   res.status(201).json({ user: pub(u), ...sign(full) });
 }));
