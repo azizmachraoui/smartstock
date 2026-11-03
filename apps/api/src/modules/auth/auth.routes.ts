@@ -38,13 +38,22 @@ r.post('/register', validate(registerSchema), asyncH(async (req: any, res: any) 
   res.status(201).json({ user: pub(u), ...sign(full) });
 }));
 r.post('/login', validate(loginSchema), asyncH(async (req: any, res: any) => {
-  const u = await User.findOne({ email: req.body.email }).select('+password +tokenVersion');
+  const email = req.body.email.toLowerCase().trim();
+  const u = await User.findOne({ email }).select('+password +tokenVersion');
   if (!u || !(await bcrypt.compare(req.body.password, u.password))) throw new AppError(401, 'Invalid credentials');
   if (!u.isActive) throw new AppError(403, 'Account deactivated');
   res.json({ user: pub(u), ...sign(u) });
 }));
 r.post('/refresh', validate(refreshSchema), asyncH(async (req: any, res: any) => {
-  let p: any; try { p = jwt.verify(req.body.refreshToken, env.JWT_REFRESH_SECRET); } catch { throw new AppError(401, 'Invalid refresh token'); }
+  let p: any;
+  try {
+    p = jwt.verify(req.body.refreshToken, env.JWT_REFRESH_SECRET);
+  } catch (err: any) {
+    if (err?.name === 'TokenExpiredError') {
+      throw new AppError(401, 'Refresh token has expired, please sign in again');
+    }
+    throw new AppError(401, 'Invalid refresh token');
+  }
   const u = await User.findById(p.sub).select('+tokenVersion');
   if (!u || !u.isActive || u.tokenVersion !== p.tv) throw new AppError(401, 'Session revoked');
   res.json(sign(u));
@@ -52,8 +61,9 @@ r.post('/refresh', validate(refreshSchema), asyncH(async (req: any, res: any) =>
 r.post('/logout', authenticate, asyncH(async (req: any, res: any) => { await User.findByIdAndUpdate(req.user.id, { $inc: { tokenVersion: 1 } }); res.json({ message: 'Logged out' }); }));
 r.get('/me', authenticate, (req: any, res: any) => res.json(pub(req.user)));
 r.post('/forgot-password', validate(forgotSchema), asyncH(async (req: any, res: any) => {
-  const u = await User.findOne({ email: req.body.email });
-  if (u) {
+  const email = req.body.email.toLowerCase().trim();
+  const u = await User.findOne({ email });
+  if (u && u.isActive) {
     const token = crypto.randomBytes(32).toString('hex');
     await User.findByIdAndUpdate(u.id, { resetTokenHash: sha(token), resetTokenExpires: new Date(Date.now() + 3600_000) });
     if (env.RESEND_API_KEY) {
@@ -74,15 +84,15 @@ r.post('/forgot-password', validate(forgotSchema), asyncH(async (req: any, res: 
       } catch (err) {
         console.error('Failed to send password reset email via Resend');
       }
-    } else {
-      console.log(`[AUTH] Password reset requested for user ID ${u.id} (Resend email provider not configured)`);
+    } else if (env.NODE_ENV !== 'production') {
+      console.log(`[AUTH-DEV] Password reset requested for ${u.email}. Token: ${token}`);
     }
   }
   res.json({ message: 'If the account exists, a reset link has been sent' });
 }));
 r.post('/reset-password', validate(resetSchema), asyncH(async (req: any, res: any) => {
   const u = await User.findOne({ resetTokenHash: sha(req.body.token), resetTokenExpires: { $gt: new Date() } }).select('+resetTokenHash');
-  if (!u) throw new AppError(400, 'Invalid or expired token');
+  if (!u || !u.isActive) throw new AppError(400, 'Invalid or expired token');
   await User.findByIdAndUpdate(u.id, { password: await bcrypt.hash(req.body.password, 12), $inc: { tokenVersion: 1 }, $unset: { resetTokenHash: 1, resetTokenExpires: 1 } });
   res.json({ message: 'Password updated' });
 }));

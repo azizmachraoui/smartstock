@@ -43,11 +43,46 @@ export const registerSchema = z.object({
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
-export const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
-export const forgotSchema = z.object({ email: z.string().email() });
-export const resetSchema = z.object({ token: z.string().min(10), password });
-export const changePasswordSchema = z.object({ currentPassword: z.string().min(1), newPassword: password });
-export const refreshSchema = z.object({ refreshToken: z.string().min(10) });
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .trim()
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
+  password: z
+    .string({ required_error: 'Password is required' })
+    .min(1, 'Password is required'),
+});
+
+export const forgotSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .trim()
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
+});
+
+export const resetSchema = z.object({
+  token: z
+    .string({ required_error: 'Token is required' })
+    .trim()
+    .min(10, 'Reset token is invalid or too short'),
+  password: passwordSchema,
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z
+    .string({ required_error: 'Current password is required' })
+    .min(1, 'Current password is required'),
+  newPassword: passwordSchema,
+});
+
+export const refreshSchema = z.object({
+  refreshToken: z
+    .string({ required_error: 'Refresh token is required' })
+    .trim()
+    .min(10, 'Invalid refresh token'),
+});
 
 const optStr = (label: string, max: number) => z.string().trim().max(max, `${label} is too long (max ${max})`).optional();
 export const categorySchema = z.object({

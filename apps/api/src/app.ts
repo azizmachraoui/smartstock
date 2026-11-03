@@ -58,9 +58,11 @@ app.get('/health', (_req, res) => {
 });
 
 // Strict rate limiters for auth
+// skip() is evaluated at request time so NODE_ENV=test set before server start is respected
 const strictAuthLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
+  skip: () => process.env.NODE_ENV === 'test',
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many authentication attempts. Please try again in 15 minutes.' },
@@ -69,6 +71,7 @@ const strictAuthLimiter = rateLimit({
 const standardAuthLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
+  skip: () => process.env.NODE_ENV === 'test',
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -76,6 +79,8 @@ const standardAuthLimiter = rateLimit({
 app.use('/api/auth/login', strictAuthLimiter);
 app.use('/api/auth/register', strictAuthLimiter);
 app.use('/api/auth/forgot-password', strictAuthLimiter);
+app.use('/api/auth/reset-password', strictAuthLimiter);
+app.use('/api/auth/change-password', strictAuthLimiter);
 app.use('/api/auth', standardAuthLimiter, authRoutes);
 
 app.use('/api/categories', categoryRoutes);
