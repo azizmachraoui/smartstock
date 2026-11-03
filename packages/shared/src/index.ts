@@ -7,7 +7,7 @@ export const ORDER_STATUSES = ['PENDING', 'CONFIRMED', 'RECEIVED', 'CANCELLED'] 
 export type Permission =
   | 'product:read' | 'product:write' | 'category:read' | 'category:write'
   | 'supplier:read' | 'supplier:write' | 'stock:read' | 'stock:write' | 'stock:adjust'
-  | 'order:read' | 'order:write' | 'analytics:read' | 'user:manage';
+  | 'order:read' | 'order:write' | 'analytics:read' | 'user:manage' | 'settings:manage';
 
 const employee: Permission[] = ['product:read', 'category:read', 'supplier:read', 'stock:read', 'stock:write'];
 const manager: Permission[] = [...employee, 'stock:adjust', 'product:write', 'category:write', 'supplier:write', 'order:read', 'order:write', 'analytics:read'];
@@ -146,3 +146,45 @@ export const orderSchema = z.object({
 });
 export const orderUpdateSchema = orderSchema.partial();
 export const orderCancelSchema = z.object({ reason: z.string().trim().max(300, 'Reason is too long (max 300)').optional() });
+
+export const SETTINGS_LANGUAGES = ['en', 'es', 'fr', 'de'] as const;
+export type SettingsLanguage = (typeof SETTINGS_LANGUAGES)[number];
+
+export const settingUpdateSchema = z.object({
+  companyName: z
+    .string({ required_error: 'Company name is required' })
+    .trim()
+    .min(1, 'Company name is required')
+    .max(100, 'Company name is too long (max 100)'),
+  currency: z
+    .string({ required_error: 'Currency is required' })
+    .trim()
+    .length(3, 'Currency must be a 3-letter ISO code')
+    .toUpperCase(),
+  timezone: z
+    .string({ required_error: 'Timezone is required' })
+    .trim()
+    .min(1, 'Timezone is required')
+    .max(80, 'Timezone is too long (max 80)'),
+  language: z.enum(SETTINGS_LANGUAGES, {
+    errorMap: () => ({ message: 'Language must be one of: en, es, fr, de' }),
+  }),
+  lowStockThreshold: z
+    .number({ required_error: 'Low stock threshold is required' })
+    .int('Threshold must be a whole number')
+    .min(0, 'Threshold cannot be negative'),
+  emailNotifications: z.boolean().default(true),
+  orderNotifications: z.boolean().default(true),
+  stockNotifications: z.boolean().default(true),
+}).strict();
+
+export type SettingUpdateInput = z.infer<typeof settingUpdateSchema>;
+
+export interface SettingData extends SettingUpdateInput {
+  id: string;
+  key: string;
+  updatedBy?: string | { id: string; firstName: string; lastName: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+

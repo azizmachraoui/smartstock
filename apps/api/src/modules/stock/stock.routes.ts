@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { stockInSchema, stockOutSchema, stockAdjustSchema } from '@smartstock/shared';
-import { Product, StockMovement } from '../../models';
+import { Product, StockMovement, Setting } from '../../models';
 import { authenticate, can, validate } from '../../middleware';
 import { AppError, asyncH } from '../../utils/errors';
 import { paging } from '../../utils/query';
@@ -52,7 +52,17 @@ r.get('/movements', can('stock:read'), asyncH(async (req: any, res: any) => {
 }));
 // Dashboard widget: every active product at/below its minimum. status = LOW_STOCK or OUT_OF_STOCK.
 r.get('/alerts', can('stock:read'), asyncH(async (_q: any, res: any) => {
-  const data = await Product.find({ isActive: true, $expr: { $lte: ['$quantity', '$minimumStock'] } }).populate('category', 'name').sort('quantity');
+  const s = await Setting.findOne({ key: 'app_settings' });
+  const globalThreshold = s?.lowStockThreshold ?? 10;
+  const data = await Product.find({
+    isActive: true,
+    $expr: {
+      $lte: [
+        '$quantity',
+        { $cond: [{ $gt: ['$minimumStock', 0] }, '$minimumStock', globalThreshold] },
+      ],
+    },
+  }).populate('category', 'name').sort('quantity');
   const out = data.filter((p) => p.quantity === 0).length;
   res.json({ summary: { total: data.length, outOfStock: out, lowStock: data.length - out }, data });
 }));

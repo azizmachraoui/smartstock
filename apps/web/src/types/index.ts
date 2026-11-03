@@ -366,3 +366,6 @@ export interface ServerToClientEvents {
   'notification:changed': (event: DomainEvent) => void;
   'user:changed': (event: DomainEvent) => void;
 }
+
+export type { SettingData, SettingUpdateInput } from '@smartstock/shared';
+

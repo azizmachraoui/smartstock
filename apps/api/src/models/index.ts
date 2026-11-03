@@ -6,3 +6,4 @@ export { StockMovement } from './stockMovement';
 export { Order } from './order';
 export { Notification } from './notification';
 export { Counter } from './counter';
+export { Setting } from './setting';

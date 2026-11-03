@@ -14,7 +14,8 @@ export type EventEntity =
   | 'supplier'
   | 'order'
   | 'notification'
-  | 'user';
+  | 'user'
+  | 'settings';
 
 export interface DomainEvent {
   /** Unique id used by clients to de-duplicate socket deliveries. */
@@ -137,4 +138,6 @@ export const socketEvents = {
     emitToUser(userId, 'notification:changed', buildEvent('notification', action, { id })),
   userChanged: (userId: string, action: string, actorId?: string) =>
     emitToRoles(['ADMIN'], 'user:changed', buildEvent('user', action, { id: userId, actorId })),
+  settingsChanged: (actorId?: string) =>
+    emitToRoles(ALL_ROLES, 'settings:changed', buildEvent('settings', 'updated', { actorId })),
 };

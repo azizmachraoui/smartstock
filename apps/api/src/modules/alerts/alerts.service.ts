@@ -1,5 +1,5 @@
 import { stockStatusOf } from '@smartstock/shared';
-import { Product, Notification, User } from '../../models';
+import { Product, Notification, User, Setting } from '../../models';
 import { socketEvents } from '../../socket';
 
 const isDup = (e: any) => e?.code === 11000 || (Array.isArray(e?.writeErrors) && e.writeErrors.length > 0 && e.writeErrors.every((w: any) => (w.code ?? w.err?.code) === 11000));
@@ -14,14 +14,22 @@ const isDup = (e: any) => e?.code === 11000 || (Array.isArray(e?.writeErrors) &&
 export async function syncStockAlert(productId: string) {
   const p = await Product.findById(productId);
   if (!p) return;
-  const status = p.isActive ? stockStatusOf(p.quantity, p.minimumStock) : 'OK'; // inactive products raise no alerts
+
+  // Use product minimumStock if explicitly set (> 0); otherwise fall back to global Setting threshold
+  let minStock = p.minimumStock;
+  if (minStock === undefined || minStock === null || minStock <= 0) {
+    const s = await Setting.findOne({ key: 'app_settings' });
+    minStock = s?.lowStockThreshold ?? 10;
+  }
+
+  const status = p.isActive ? stockStatusOf(p.quantity, minStock) : 'OK'; // inactive products raise no alerts
   const keep = status === 'OK' ? null : status;
   const stale = (['LOW_STOCK', 'OUT_OF_STOCK'] as const).filter((t) => t !== keep);
   await Notification.updateMany({ relatedProduct: p._id, type: { $in: stale }, resolved: false }, { $set: { resolved: true, resolvedAt: new Date() }, $unset: { dedupeKey: 1 } });
   if (!keep) return;
   const out = keep === 'OUT_OF_STOCK';
-  const message = out ? `${p.name} (${p.sku}) is OUT OF STOCK` : `${p.name} (${p.sku}) is low: ${p.quantity} ${p.unit} left (minimum ${p.minimumStock})`;
-  const alertData = { productId: p.id, name: p.name, sku: p.sku, quantity: p.quantity, minimumStock: p.minimumStock, unit: p.unit, message };
+  const message = out ? `${p.name} (${p.sku}) is OUT OF STOCK` : `${p.name} (${p.sku}) is low: ${p.quantity} ${p.unit} left (minimum ${minStock})`;
+  const alertData = { productId: p.id, name: p.name, sku: p.sku, quantity: p.quantity, minimumStock: minStock, unit: p.unit, message };
   if (out) socketEvents.productOutOfStock(p.id, alertData); else socketEvents.productLowStock(p.id, alertData);
   await Notification.updateMany({ relatedProduct: p._id, type: keep, resolved: false }, { $set: { message } }); // refresh text, keep the same alert
   const staff = await User.find({ role: { $in: ['ADMIN', 'MANAGER'] }, isActive: true }).select('_id');

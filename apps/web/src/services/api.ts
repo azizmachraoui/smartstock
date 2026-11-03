@@ -19,6 +19,8 @@ import type {
   ProductInput,
   ProductParams,
   ProductUpdateInput,
+  SettingData,
+  SettingUpdateInput,
   StockAdjustInput,
   StockAlerts,
   StockInInput,
@@ -280,3 +282,9 @@ export const notificationService = {
   markRead: (id: string) => patch<Notification>(`/notifications/${id}/read`),
   markAllRead: () => post<MessageResponse>('/notifications/read-all'),
 };
+
+export const settingService = {
+  get: () => get<SettingData>('/settings'),
+  update: (input: SettingUpdateInput) => put<SettingData>('/settings', input),
+};
+

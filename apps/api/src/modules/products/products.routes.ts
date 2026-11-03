@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { productSchema, productUpdateSchema } from '@smartstock/shared';
-import { Product, Category, Counter, StockMovement } from '../../models';
+import { Product, Category, Counter, StockMovement, Setting } from '../../models';
 import { authenticate, can, validate } from '../../middleware';
 import { syncStockAlert } from '../alerts/alerts.service';
 import { inTransaction, applyMovement } from '../stock/stock.service';
@@ -47,7 +47,16 @@ r.get('/', read, asyncH(async (req: any, res: any) => {
   if (q.category) f.category = q.category;
   if (q.supplier) f.supplier = q.supplier;
   if (q.isActive !== undefined) f.isActive = q.isActive === 'true'; else if (req.user.role === 'EMPLOYEE') f.isActive = true;
-  if (q.lowStock === 'true') f.$expr = { $lte: ['$quantity', '$minimumStock'] };
+  if (q.lowStock === 'true') {
+    const s = await Setting.findOne({ key: 'app_settings' });
+    const globalThreshold = s?.lowStockThreshold ?? 10;
+    f.$expr = {
+      $lte: [
+        '$quantity',
+        { $cond: [{ $gt: ['$minimumStock', 0] }, '$minimumStock', globalThreshold] },
+      ],
+    };
+  }
   if (q.outOfStock === 'true') f.quantity = 0;
   if (q.minPrice || q.maxPrice) f.sellingPrice = { ...(q.minPrice && { $gte: +q.minPrice }), ...(q.maxPrice && { $lte: +q.maxPrice }) };
   const sortKey = String(q.sort || '-createdAt'), field = sortKey.replace(/^-/, '');

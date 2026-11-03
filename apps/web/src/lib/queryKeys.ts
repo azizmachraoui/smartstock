@@ -40,6 +40,7 @@ export const qk = {
 
   dashboard: ['dashboard'] as const,
   reports: (scope: string) => ['reports', scope] as const,
+  settings: ['settings'] as const,
 };
 
 /** Query-key prefixes invalidated when any inventory data changes. */
