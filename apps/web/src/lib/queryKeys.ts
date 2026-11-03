@@ -3,6 +3,7 @@ import type {
   NotificationParams,
   OrderParams,
   ProductParams,
+  ReportParams,
   StockMovementParams,
   SupplierParams,
 } from '../types';
@@ -40,6 +41,10 @@ export const qk = {
 
   dashboard: ['dashboard'] as const,
   reports: (scope: string) => ['reports', scope] as const,
+  reportInventory: (params?: ReportParams) => ['reports', 'inventory', params ?? {}] as const,
+  reportMovements: (params?: ReportParams) => ['reports', 'movements', params ?? {}] as const,
+  reportPurchases: (params?: ReportParams) => ['reports', 'purchases', params ?? {}] as const,
+  reportTopProducts: (params?: ReportParams) => ['reports', 'top-products', params ?? {}] as const,
   settings: ['settings'] as const,
 };
 

@@ -368,4 +368,18 @@ export interface ServerToClientEvents {
 }
 
 export type { SettingData, SettingUpdateInput } from '@smartstock/shared';
+export type {
+  InventoryReport,
+  MovementsReport,
+  PurchasesReport,
+  TopProductsReport,
+  ReportParams,
+  ReportExportType,
+  ValuationByCategory,
+  LowStockItem,
+  MovementTrendPoint,
+  PurchaseByPeriod,
+  PurchaseBySupplier,
+  TopProduct,
+} from '@smartstock/shared';
 

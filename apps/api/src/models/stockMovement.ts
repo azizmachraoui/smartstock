@@ -16,6 +16,7 @@ const movementSchema = new Schema({
 movementSchema.index({ product: 1, createdAt: -1 });
 movementSchema.index({ user: 1, createdAt: -1 });
 movementSchema.index({ createdAt: -1 });
+movementSchema.index({ type: 1, createdAt: 1 }); // reports: movement trend by type
 
 for (const hook of ['updateOne', 'updateMany', 'findOneAndUpdate', 'findOneAndReplace', 'findOneAndDelete', 'deleteOne', 'deleteMany', 'replaceOne'] as const) {
   movementSchema.pre(hook as any, function () {

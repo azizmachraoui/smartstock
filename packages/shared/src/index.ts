@@ -188,3 +188,101 @@ export interface SettingData extends SettingUpdateInput {
   updatedAt: string;
 }
 
+// ─── Reports types ────────────────────────────────────────────────────────────
+
+export interface ReportDateRange {
+  from: string;
+  to: string;
+}
+
+export interface ValuationByCategory {
+  category: string;
+  totalValue: number;
+  productCount: number;
+  totalQuantity: number;
+}
+
+export interface LowStockItem {
+  _id: string;
+  name: string;
+  sku: string;
+  quantity: number;
+  minimumStock: number;
+  purchasePrice: number;
+  category: string;
+}
+
+export interface InventoryReport {
+  totalValuation: number;
+  totalProducts: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+  valuationByCategory: ValuationByCategory[];
+  lowStock: LowStockItem[];
+  outOfStock: LowStockItem[];
+}
+
+export interface MovementVolume {
+  count: number;
+  volume: number;
+}
+
+export interface MovementTrendPoint {
+  date: string;
+  in: MovementVolume;
+  out: MovementVolume;
+  adjustment: MovementVolume;
+}
+
+export interface MovementsReport {
+  trend: MovementTrendPoint[];
+  totals: {
+    in: MovementVolume;
+    out: MovementVolume;
+    adjustment: MovementVolume;
+  };
+  range: ReportDateRange;
+}
+
+export interface PurchaseByPeriod {
+  date: string;
+  totalAmount: number;
+  orderCount: number;
+}
+
+export interface PurchaseBySupplier {
+  supplier: string;
+  totalAmount: number;
+  orderCount: number;
+}
+
+export interface PurchasesReport {
+  totalAmount: number;
+  orderCount: number;
+  byPeriod: PurchaseByPeriod[];
+  bySupplier: PurchaseBySupplier[];
+  range: ReportDateRange;
+}
+
+export interface TopProduct {
+  productId: string;
+  name: string;
+  sku: string;
+  totalVolume: number;
+  totalCount: number;
+  byType: { type: string; volume: number; count: number }[];
+}
+
+export interface TopProductsReport {
+  topProducts: TopProduct[];
+  range: ReportDateRange;
+}
+
+export type ReportExportType = 'inventory' | 'movements' | 'purchases' | 'top-products';
+
+export interface ReportParams {
+  from?: string;
+  to?: string;
+  limit?: number;
+}
+

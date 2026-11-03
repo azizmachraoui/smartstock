@@ -13,6 +13,7 @@ import notificationRoutes from './modules/notifications/notifications.routes';
 import authRoutes from './modules/auth/auth.routes';
 import stockRoutes from './modules/stock/stock.routes';
 import settingRoutes from './modules/settings/settings.routes';
+import reportRoutes from './modules/reports/reports.routes';
 import { errorHandler } from './middleware';
 
 export const app = express();
@@ -93,6 +94,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.put('/api/settings', strictAuthLimiter);
 app.use('/api/settings', standardAuthLimiter, settingRoutes);
+app.use('/api/reports', standardAuthLimiter, reportRoutes);
 
 app.use((_req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use(errorHandler);

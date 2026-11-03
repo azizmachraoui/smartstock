@@ -25,5 +25,6 @@ const orderSchema = new Schema({
 
 orderSchema.index({ supplier: 1, createdAt: -1 });
 orderSchema.index({ createdBy: 1, createdAt: -1 });
+orderSchema.index({ status: 1, receivedAt: 1 }); // reports: purchase value aggregation
 
 export const Order = model('Order', orderSchema);

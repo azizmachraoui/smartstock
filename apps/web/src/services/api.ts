@@ -8,7 +8,9 @@ import type {
   Category,
   CategoryInput,
   CategoryParams,
+  InventoryReport,
   MessageResponse,
+  MovementsReport,
   Notification,
   NotificationParams,
   Order,
@@ -19,6 +21,8 @@ import type {
   ProductInput,
   ProductParams,
   ProductUpdateInput,
+  PurchasesReport,
+  ReportParams,
   SettingData,
   SettingUpdateInput,
   StockAdjustInput,
@@ -31,6 +35,7 @@ import type {
   SupplierInput,
   SupplierParams,
   TokenPair,
+  TopProductsReport,
   User,
 } from '../types';
 
@@ -286,5 +291,20 @@ export const notificationService = {
 export const settingService = {
   get: () => get<SettingData>('/settings'),
   update: (input: SettingUpdateInput) => put<SettingData>('/settings', input),
+};
+
+export const reportService = {
+  inventory: () => get<InventoryReport>('/reports/inventory'),
+  movements: (params?: ReportParams) => get<MovementsReport>('/reports/movements', { params }),
+  purchases: (params?: ReportParams) => get<PurchasesReport>('/reports/purchases', { params }),
+  topProducts: (params?: ReportParams) => get<TopProductsReport>('/reports/top-products', { params }),
+  exportUrl: (type: string, params: ReportParams): string => {
+    const base = `${API_BASE}/reports/export/${type}`;
+    const qs = Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== null)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join('&');
+    return qs ? `${base}?${qs}` : base;
+  },
 };
 
