@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { categoryService } from '../services/api';
-import { Table, Badge, Button, Pagination, Input, Select, Modal } from '../components';
-import { ConfirmDialog } from '../components/ConfirmDialog';
+import { Table, Badge, Button, Pagination, Input, Select, Modal, ConfirmDialog } from '../components';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Search, Edit, Trash2, RotateCcw } from 'lucide-react';

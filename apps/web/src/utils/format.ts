@@ -12,12 +12,6 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(Number.isFinite(value) ? value : 0);
 }
 
-export function formatCompact(value: number): string {
-  return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
-    Number.isFinite(value) ? value : 0,
-  );
-}
-
 export function formatDate(
   date: string | Date | undefined,
   options?: Intl.DateTimeFormatOptions,

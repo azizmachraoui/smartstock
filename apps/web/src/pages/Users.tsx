@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { authService } from '../services/api';
 import { formatDateTime } from '../utils/format';
-import { Table, Badge, Button, Modal, Input } from '../components';
-import { ConfirmDialog } from '../components/ConfirmDialog';
+import { Table, Badge, Button, Modal, Input, ConfirmDialog } from '../components';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
 import { Edit, Shield, UserX, UserCheck, Key } from 'lucide-react';
