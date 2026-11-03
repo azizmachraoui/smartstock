@@ -5,6 +5,7 @@ import { formatCurrency, formatDateTime } from '../utils/format';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
 import { Table, Badge, Button, Modal, Card, Input, StockStatusBadge } from '../components';
+import { ProductImage } from '../components/common/ProductImage';
 import { ArrowLeft, Edit, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 
 export default function ProductDetails() {
@@ -109,6 +110,7 @@ export default function ProductDetails() {
           <button onClick={() => navigate('/products')} className="p-2 rounded-lg hover:bg-gray-100">
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <ProductImage src={product.image} alt={product.name} className="h-14 w-14" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
             <div className="flex items-center gap-3 mt-1">

@@ -87,13 +87,15 @@ export function assetUrl(path?: string): string | undefined {
 
 export const api = axios.create({
   baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' },
   timeout: 20_000,
 });
 
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 
@@ -223,7 +225,9 @@ export const productService = {
   uploadImage: (id: string, file: File) => {
     const form = new FormData();
     form.append('image', file);
-    return post<Product>(`/products/${id}/image`, form);
+    return post<Product>(`/products/${id}/image`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   },
   deleteImage: (id: string) => del<Product>(`/products/${id}/image`),
 };

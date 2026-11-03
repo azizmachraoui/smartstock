@@ -213,14 +213,14 @@ export default function ProductForm() {
 
       if (editing && id) {
         const { quantity: _qty, ...updatePayload } = payload;
-        const saved = await productService.update(id, updatePayload);
-        if (imageFile) await productService.uploadImage(id, imageFile);
-        else if (removeImage) await productService.deleteImage(id);
+        let saved = await productService.update(id, updatePayload);
+        if (imageFile) saved = await productService.uploadImage(id, imageFile);
+        else if (removeImage) saved = await productService.deleteImage(id);
         return saved;
       }
 
-      const created = await productService.create(payload);
-      if (imageFile) await productService.uploadImage(created.id, imageFile);
+      let created = await productService.create(payload);
+      if (imageFile) created = await productService.uploadImage(created.id, imageFile);
       return created;
     },
     onSuccess: (saved) => {
